@@ -71,7 +71,7 @@ function AppRoutes() {
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/proyecto-documentos">
       <AuthProvider>
         <AppRoutes />
       </AuthProvider>

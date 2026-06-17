@@ -31,6 +31,9 @@ import { VersionsModal } from "./components/VersionsModal";
 
 const HEADER_IMAGE_URL =
   "https://fcjrqdmdwfkzqoygioes.supabase.co/storage/v1/object/public/images/usc_header.png";
+
+const FOOTER_IMAGE_URL =
+  "https://fcjrqdmdwfkzqoygioes.supabase.co/storage/v1/object/public/images/usc_footer.png";
 const DEFAULT_MARGEN_LATERAL_CM = 3;
 
 export const DocumentoEditorPage = () => {
@@ -1099,7 +1102,7 @@ export const DocumentoEditorPage = () => {
               margin-top: 0.01cm;
               margin-right: 0;
               margin-left: 0;
-              margin-bottom: 2cm;
+              margin-bottom: 0.01cm;
             }
 
             html,
@@ -1191,10 +1194,16 @@ export const DocumentoEditorPage = () => {
               display: table-header-group;
             }
 
+            .pdf-document > tfoot {
+              display: table-footer-group;
+            }
+
             .pdf-document > thead > tr > td,
             .pdf-document > tbody > tr > td,
+            .pdf-document > tfoot > tr > td,
             .pdf-document > thead > tr > th,
-            .pdf-document > tbody > tr > th {
+            .pdf-document > tbody > tr > th,
+            .pdf-document > tfoot > tr > th {
               border: none;
               padding: 0;
             }
@@ -1205,15 +1214,29 @@ export const DocumentoEditorPage = () => {
               max-width: none;
             }
 
+            .footer-image {
+              width: 100%;
+              display: block;
+              max-width: none;
+              margin: 0;
+              padding: 0;
+            }
+
+            .footer-cell {
+              border: none;
+              padding: 0;
+              margin: 0;
+              line-height: 0;
+              vertical-align: bottom;
+            }
+
             .page-content {
               padding-top: 0.2cm;
               padding-left: ${margenPDFCm}cm;
               padding-right: ${margenPDFCm}cm;
-              padding-bottom: 2.5cm;
-              width: 100%;
+              padding-bottom: 0.5cm;
               max-width: 100%;
               box-sizing: border-box;
-              overflow-x: hidden;
               overflow-wrap: anywhere;
               word-break: break-word;
             }
@@ -1349,6 +1372,18 @@ export const DocumentoEditorPage = () => {
                 </td>
               </tr>
             </thead>
+
+            <tfoot>
+              <tr>
+                <td class="footer-cell">
+                  <img
+                    src="${FOOTER_IMAGE_URL}"
+                    alt="Pie de página"
+                    class="footer-image"
+                  />
+                </td>
+              </tr>
+            </tfoot>
 
             <tbody>
               <tr>
