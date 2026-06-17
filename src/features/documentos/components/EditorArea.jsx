@@ -1,6 +1,6 @@
 // src/features/documentos/components/EditorArea.jsx
 import { Editor } from "@tinymce/tinymce-react";
-import { supabase } from "../lib/supabase";
+import { supabase } from "../../../lib/supabase";
 
 import { VistaPrevisualizacion } from "../../../components/VistaPrevisualizacion";
 import { PanelComentarios } from "../../../components/PanelComentarios";
