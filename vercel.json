@@ -1,8 +1,12 @@
 {
   "rewrites": [
     {
-      "source": "/(.*)",
-      "destination": "/"
+      "source": "/proyecto-documentos/(.*)",
+      "destination": "/proyecto-documentos/index.html"
+    },
+    {
+      "source": "/proyecto-documentos",
+      "destination": "/proyecto-documentos/index.html"
     }
   ]
 }
