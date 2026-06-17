@@ -143,7 +143,7 @@ export const EditorArea = ({
       <div className="flex-1 min-h-0">
         <Editor
           key={`${seccionActiva.id}-${margenSeguro}`}
-          tinymceScriptSrc={`${import.meta.env.BASE_URL}tinymce/tinymce.min.js`}
+          tinymceScriptSrc="/tinymce/tinymce.min.js"
           licenseKey="gpl"
           value={seccionActiva.contenido || ""}
           onEditorChange={onContentChange}
