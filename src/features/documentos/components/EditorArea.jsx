@@ -1,5 +1,6 @@
 // src/features/documentos/components/EditorArea.jsx
 import { Editor } from "@tinymce/tinymce-react";
+import { supabase } from "../lib/supabase";
 
 import { VistaPrevisualizacion } from "../../../components/VistaPrevisualizacion";
 import { PanelComentarios } from "../../../components/PanelComentarios";
@@ -13,6 +14,7 @@ export const EditorArea = ({
   permiso,
   user,
   documentoId,
+  documento,
   margenLateralCm = 3,
   onCambiarMargenLateral,
   onAprobar,
@@ -127,6 +129,89 @@ export const EditorArea = ({
     );
   }
 
+  const ejecutarAsistenteIA = async (editor, accion) => {
+    try {
+      if (soloLectura) {
+        alert("No puedes usar el asistente IA en modo solo lectura.");
+        return;
+      }
+
+      const contenidoSeleccionado = editor.selection.getContent({
+        format: "html",
+      });
+
+      const contenidoCompleto = editor.getContent();
+
+      const contenidoParaEnviar =
+        contenidoSeleccionado?.trim() || contenidoCompleto?.trim();
+
+      if (!contenidoParaEnviar) {
+        alert("No hay contenido para procesar.");
+        return;
+      }
+
+      const confirmar = window.confirm(
+        contenidoSeleccionado
+          ? "La IA procesará el texto seleccionado. ¿Deseas continuar?"
+          : "No seleccionaste texto. La IA procesará toda la sección. ¿Deseas continuar?",
+      );
+
+      if (!confirmar) return;
+
+      const { data, error } = await supabase.functions.invoke(
+        "asistente-editor",
+        {
+          body: {
+            accion,
+            contenido: contenidoParaEnviar,
+            tituloSeccion: seccionActiva?.titulo || "",
+            tituloDocumento: documento?.titulo || "",
+            tipoDocumento: documento?.tipo_documento || "",
+          },
+        },
+      );
+
+      if (error) {
+        console.error(error);
+        alert("No se pudo ejecutar el asistente IA.");
+        return;
+      }
+
+      if (data?.error) {
+        console.error(data.error);
+        alert(data.error);
+        return;
+      }
+
+      const resultado = data?.resultado;
+
+      if (!resultado) {
+        alert("La IA no devolvió contenido.");
+        return;
+      }
+
+      const aceptar = window.confirm(
+        contenidoSeleccionado
+          ? "¿Deseas reemplazar el texto seleccionado con la sugerencia de IA?"
+          : "¿Deseas reemplazar el contenido completo de la sección con la sugerencia de IA?",
+      );
+
+      if (!aceptar) return;
+
+      if (contenidoSeleccionado) {
+        editor.selection.setContent(resultado);
+      } else {
+        editor.setContent(resultado);
+      }
+
+      const nuevoContenido = editor.getContent();
+      onContentChange(nuevoContenido);
+    } catch (error) {
+      console.error(error);
+      alert("Ocurrió un error usando el asistente IA.");
+    }
+  };
+
   // Modo editor normal: dueño, editor o revisor con escritura.
   return (
     <div className="w-full max-w-[816px] bg-white shadow-xl rounded-lg flex flex-col h-full relative">
@@ -143,7 +228,7 @@ export const EditorArea = ({
       <div className="flex-1 min-h-0">
         <Editor
           key={`${seccionActiva.id}-${margenSeguro}`}
-          tinymceScriptSrc="/tinymce/tinymce.min.js"
+          tinymceScriptSrc={`${import.meta.env.BASE_URL}tinymce/tinymce.min.js`}
           licenseKey="gpl"
           value={seccionActiva.contenido || ""}
           onEditorChange={onContentChange}
@@ -174,7 +259,7 @@ export const EditorArea = ({
               "pagebreak",
             ],
             toolbar: [
-              "undo redo | blocks fontfamily customFontSize fontsize | bold italic underline strikethrough | forecolor backcolor",
+              "undo redo | blocks fontfamily customFontSize fontsize | asistenteIA | bold italic underline strikethrough | forecolor backcolor",
               "alignleft aligncenter alignright alignjustify | bullist numlist outdent indent",
               "link image table codesample | pagebreak | marginLateralButton | removeformat | fullscreen code",
             ].join(" "),
@@ -183,6 +268,37 @@ export const EditorArea = ({
                 text: "Font Size",
                 tooltip: "Tamaño de fuente personalizado",
                 onAction: () => aplicarTamanoFuentePersonalizado(editor),
+              });
+
+              editor.ui.registry.addMenuButton("asistenteIA", {
+                text: "IA",
+                tooltip: "Asistente IA de escritura",
+                enabled: !soloLectura,
+                fetch: (callback) => {
+                  callback([
+                    {
+                      type: "menuitem",
+                      text: "Mejorar redacción",
+                      onAction: () =>
+                        ejecutarAsistenteIA(editor, "mejorar_redaccion"),
+                    },
+                    {
+                      type: "menuitem",
+                      text: "Corregir ortografía y gramática",
+                      onAction: () => ejecutarAsistenteIA(editor, "corregir"),
+                    },
+                    {
+                      type: "menuitem",
+                      text: "Hacer más académico",
+                      onAction: () => ejecutarAsistenteIA(editor, "academico"),
+                    },
+                    {
+                      type: "menuitem",
+                      text: "Resumir",
+                      onAction: () => ejecutarAsistenteIA(editor, "resumir"),
+                    },
+                  ]);
+                },
               });
 
               editor.ui.registry.addButton("marginLateralButton", {
