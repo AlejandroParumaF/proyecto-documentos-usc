@@ -1764,13 +1764,11 @@ export const DocumentoEditorPage = () => {
               role={role}
               permiso={permiso}
               user={user}
-              documentoId={documentoId}
+              documentoId={id}
               documento={documento}
-              margenLateralCm={margenLateralCm}
-              onCambiarMargenLateral={actualizarMargenLateral}
-              onAprobar={aprobarSeccion}
-              onSolicitarCorrecciones={solicitarCorrecciones}
-              onMarcarPendiente={marcarPendiente}
+              onAprobar={handleAprobar}
+              onSolicitarCorrecciones={handleSolicitarCorrecciones}
+              onMarcarPendiente={handleMarcarPendiente}
               onContentChange={handleContentChange}
               filePickerCallback={filePickerCallback}
             />
